@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqeury/3.1/jquery.min.js"></script>
+    <title>Title</title>
+</head>
+<body>
+<form method="post" action="/test.do" id="formt">
+    <label for="args"></label>
+    <input id="args" name="args" placeholder="cmdLine" autofocus/>
+    <input hidden id="reset" name="reset" value="false"/>
+    <button type="submit" id="submit">조회</button>
+    <button type="button" id="resetBtn">초기화</button>
+</form>
+<div id="value" th:text="${line}"></div>
+<div id="error" th:text="${error}"></div>
+<div id="textValue"></div>
+<script>
+    let resetBtn = document.querySelector('#resetBtn')
+
+    resetBtn.addEventListener('submit', function(){
+        $('#reset').val("true")
+        let form = document.querySelector('#formt')
+        form.submit();
+    })
+
+    let content = document.querySelector('#value').textContent;
+    content = $.parseHTML(content);
+    document.querySelector('#textValue').append(content)
+    // $('#textValue').textContent = content
+
+</script>
+</body>
+</html>
