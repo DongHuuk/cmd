@@ -92,7 +92,8 @@ public class ExampleController {
     }
 
     @RequestMapping("/test.do")
-    public String getCmdLine(ModelMap modelMap, @RequestParam(required = false) String args, @RequestParam(required = false) Boolean reset) throws UnsupportedEncodingException {
+    public String getCmdLine(ModelMap modelMap, @RequestParam(required = false) String args, @RequestParam(required = false) Boolean reset) {
+
         String osName = System.getProperty("os.name");
         String[] cmd = new String[3];
 
@@ -112,56 +113,92 @@ public class ExampleController {
             }
         }else {
             //linux
-            cmd = new String[]{"/bin/sh", "-c", "cd " + this.cd + ";"};
+            cmd = new String[]{"/bin/sh", "-c", args + ";"};
 
             if (args != null && !args.equals("")) {
-                try {
-                    if (args.startsWith("cd")) {
-                        String str = "";
-
-                        //cd를 사용 못하므로 cd 요청시 현재 pwd 값을 구해서 "cd ~~; args" 식으로 동작시킴
-                        String[] split = args.split(" ");
-                        if (split[1].equals("..")) {
-                            //PWD 명령어 실행 (현재 path 값 가져오기)
-                            this.cd = this.linuxCmdRunPWD(cmd, this.cd);
-                            cmd[2] = "cd " + this.cd + ";";
-                        } else if (split[1].startsWith("/")) {
-                            args = args.replace("cd ", "");
-                            this.cd = args;
-                            cmd[2] = "cd " + args + ";";
-                        } else {
-                            String[] cdSplit = this.cd.trim().replace("..", "").split("/");
-                            String tail = "";
-                            str = "";
-
-                            if(this.cd.contains("..")){
-                                cdSplit[cdSplit.length-1] = args.replace("cd ", "");
-                            }else {
-                                tail = args.replace("cd ", "");
-                            }
-
-                            for(int i=1; i<cdSplit.length; i++){
-                                str += "/" + cdSplit[i];
-                            }
-
-                            if (tail != null) {
-                                str += "/" + tail;
-                            }
-
-                            this.cd = str;
-                            cmd[2] = "cd " + this.cd + ";";
-                        }
-                    } else {
-                        cmd[2] = "cd " + this.cd + "; " + args;
-                    }
-
+                try{
                     this.linuxCmdLine(modelMap, cmd);
-                } catch (IOException | InterruptedException e) {
-                    modelMap.put("error", "명령어가 잘못되었습니다.");
+                } catch (InterruptedException | IOException e) {
+                    modelMap.put("error", "잘못된 명령입니다.");
                 }
             }
         }
 
         return "test";
     }
+
+
+//    @RequestMapping("/test.do")
+//    public String getCmdLine(ModelMap modelMap, @RequestParam(required = false) String args, @RequestParam(required = false) Boolean reset) throws UnsupportedEncodingException {
+//        String osName = System.getProperty("os.name");
+//        String[] cmd = new String[3];
+//
+//        if (!osName.toLowerCase().startsWith("window") && (reset != null && reset)) {
+//            this.cd = System.getProperty("user.dir");
+//        }
+//
+//        //os 구분
+//        if(osName.toLowerCase().startsWith("window")){
+//            if (args != null && !args.equals("")) {
+//                try{
+//                    //window cmd line 동작 method
+//                    this.windowCmdLine(modelMap, args, cmd);
+//                }catch (IOException | InterruptedException e) {
+//                    modelMap.put("error", "명령어가 잘못되었습니다.");
+//                }
+//            }
+//        }else {
+//            //linux
+//            cmd = new String[]{"/bin/sh", "-c", "cd " + this.cd + ";"};
+//
+//            if (args != null && !args.equals("")) {
+//                try {
+//                    if (args.startsWith("cd")) {
+//                        String str = "";
+//
+//                        //cd를 사용 못하므로 cd 요청시 현재 pwd 값을 구해서 "cd ~~; args" 식으로 동작시킴
+//                        String[] split = args.split(" ");
+//                        if (split[1].equals("..")) {
+//                            //PWD 명령어 실행 (현재 path 값 가져오기)
+//                            this.cd = this.linuxCmdRunPWD(cmd, this.cd);
+//                            cmd[2] = "cd " + this.cd + ";";
+//                        } else if (split[1].startsWith("/")) {
+//                            args = args.replace("cd ", "");
+//                            this.cd = args;
+//                            cmd[2] = "cd " + args + ";";
+//                        } else {
+//                            String[] cdSplit = this.cd.trim().replace("..", "").split("/");
+//                            String tail = "";
+//                            str = "";
+//
+//                            if(this.cd.contains("..")){
+//                                cdSplit[cdSplit.length-1] = args.replace("cd ", "");
+//                            }else {
+//                                tail = args.replace("cd ", "");
+//                            }
+//
+//                            for(int i=1; i<cdSplit.length; i++){
+//                                str += "/" + cdSplit[i];
+//                            }
+//
+//                            if (tail != null) {
+//                                str += "/" + tail;
+//                            }
+//
+//                            this.cd = str;
+//                            cmd[2] = "cd " + this.cd + ";";
+//                        }
+//                    } else {
+//                        cmd[2] = "cd " + this.cd + "; " + args;
+//                    }
+//
+//                    this.linuxCmdLine(modelMap, cmd);
+//                } catch (IOException | InterruptedException e) {
+//                    modelMap.put("error", "명령어가 잘못되었습니다.");
+//                }
+//            }
+//        }
+//
+//        return "test";
+//    }
 }
